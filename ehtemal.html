@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fa">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>محاسبه احتمال</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>پرتاب تاس و سکه</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>احتمال پرتاب دو تاس همزمان</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .options {
+            margin-top: 20px;
+        }
+        .option {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>محاسبه احتمال</h1>
+            <div id="diceProbability" class="result"></div>
+            <div id="coinProbability" class="result"></div>
+        </div>
+
+        <script>
+        function calculateDiceProbability() {
+            const numberOfSides = 6;
+            const probability = (1 / numberOfSides) * 100;
+            document.getElementById("diceProbability").innerText = `احتمال ظاهر شدن هر عدد تاس: ${probability.toFixed(2)}%`;
+        }
+
+        function calculateCoinProbability() {
+            const numberOfOutcomes = 2;
+            const probability = (1 / numberOfOutcomes) * 100;
+            document.getElementById("coinProbability").innerText = `احتمال ظاهر شدن شیر یا خط در پرتاب سکه: ${probability.toFixed(2)}%`;
+        }
+
+        calculateDiceProbability();
+        calculateCoinProbability();
+    </script>
+        <div class="container">
+            <h1>پرتاب تاس و سکه</h1>
+            <button onclick="rollDice()">پرتاب تاس</button>
+            <button onclick="flipCoin()">پرتاب سکه</button>
+            <div id="result" class="result"></div>
+        </div>
+
+        <script>
+        function rollDice() {
+            const diceValue = Math.floor(Math.random() * 6) + 1;
+            document.getElementById("result").innerText = `نتیجه پرتاب تاس: ${diceValue}`;
+        }
+
+        function flipCoin() {
+            const coinValue = Math.random() < 0.5 ? "خط" : "شیر";
+            document.getElementById("result").innerText = `نتیجه پرتاب سکه: ${coinValue}`;
+        }
+    </script>
+        <div class="container">
+            <h1>احتمال پرتاب دو تاس همزمان</h1>
+            <div class="options">
+                <div class="option"
+                    onclick="calculateProbability('specific')">انتخاب یک عدد خاص
+                    برای هر تاس</div>
+                <div class="option"
+                    onclick="calculateProbability('pairs')">انتخاب یک زوج اعداد
+                    برای هر تاس</div>
+            </div>
+            <div id="result" class="result"></div>
+        </div>
+
+        <script>
+        function calculateProbability(type) {
+            let result;
+            switch (type) {
+                case 'specific':
+                    result = 'حالت انتخاب یک عدد خاص برای هر تاس: 1/36';
+                    break;
+                case 'pairs':
+                    result = 'حالت انتخاب یک زوج اعداد برای هر تاس: 1/18';
+                    break;
+                
+                default:
+                    result = 'لطفاً یک گزینه را انتخاب کنید.';
+            }
+            document.getElementById("result").innerText = result;
+        }
+    </script>
+    </body>
+</html>

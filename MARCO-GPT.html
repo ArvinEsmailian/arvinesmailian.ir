@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Bot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            direction: rtl;
+            text-align: right;
+        }
+        .input-box {
+            display: flex;
+        }
+        .input-box input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 0 5px 5px 0;
+            border: 1px solid #ccc;
+            border-left: none;
+        }
+        .input-box button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-box" id="chat-box">
+            <p><strong>بات:</strong> سلام! من یک چت بات هستم. چطور می‌توانم به شما کمک کنم؟</p>
+        </div>
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="پیام خود را وارد کنید...">
+            <button onclick="sendMessage()">ارسال</button>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 20px;">
+        <h2>افزودن سوال و پاسخ جدید</h2>
+        <div class="input-box">
+            <input type="text" id="new-question" placeholder="سوال جدید">
+            <input type="text" id="new-answer" placeholder="پاسخ جدید">
+            <button onclick="addKnowledge()">افزودن</button>
+        </div>
+    </div>
+
+    <script>
+        var knowledgeBase = [
+{ question: 'سلام', answer: 'سلام! خوش آمدید!' },
+{ question: 'چطوری؟', answer: 'ممنونم، خوبم. شما چطور؟' },
+{ question: 'چه خبر؟', answer: 'هیچ خبر خاصی نیست. شما چه خبر؟' },
+{
+  question: "سلام",
+  answer: "سلام! چطور می‌توانم به شما کمک کنم؟"
+},
+{
+  question: "اسم تو چیه؟",
+  answer: "من یک چت بات ساده هستم."
+},
+{
+  question: "خداحافظ",
+  answer: "خداحافظ! اگر سوالی دارید، بپرسید."
+},
+{
+  question: "چگونه ترتیب اعداد اول را بشناسیم؟",
+  answer: "ترتیب اعداد اول از اعداد صحیح شروع می‌شود و تا بی‌نهایت ادامه دارد. به عنوان مثال، ۲، ۳، ۵، ۷، ۱۱، ..."
+},
+{
+  question: "توان دوم یک عدد چگونه محاسبه می‌شود؟",
+  answer: "توان دوم یک عدد برابر است با عدد خود ضربدر خود. برای مثال، ۳^۲ = ۳ × ۳ = ۹."
+},
+{
+  question: "تعریف مجموعه تهی چیست؟",
+  answer: "مجموعه تهی مجموعه‌ای است که هیچ عضوی در آن وجود ندارد. به عنوان مثال، مجموعه‌ای که هیچ عدد زوجی نداشته باشد."
+},
+{
+  question: "تعریف میانگین وزنی چیست؟",
+  answer: "میانگین وزنی با در نظر گرفتن وزن هر مقدار، برآورد میانگین محاسبه می‌شود. به عنوان مثال، اگر دو مقدار با وزن‌های ۲ و ۳ داشته باشیم، میانگین وزنی = (۲ × ۲ + ۳ × ۳) / (۲ + ۳)."
+},
+{
+  question: "چگونه انتگرال معین را محاسبه کنیم؟",
+  answer: "برای محاسبه انتگرال معین یک تابع از a تا b، باید از فرمول زیر استفاده کنیم: ∫[a, b] f(x)dx."
+},
+{
+  question: "چگونه انتگرال نامعین را محاسبه کنیم؟",
+  answer: "برای محاسبه انتگرال نامعین یک تابع، از فرمول ∫f(x)dx استفاده می‌شود."
+},
+{
+  question: "تعریف اعداد فرد و زوج چیست؟",
+  answer: "اعداد فرد اعدادی هستند که بر ۲ بخش‌پذیر نیستند و اعداد زوج اعدادی هستند که بر ۲ بخش‌پذیر هستند."
+},
+{
+question: "اسم تو چیه؟",
+answer: "من یک چت بات ساده هستم."
+},
+{
+question: "خداحافظ",
+answer: "خداحافظ! اگر سوالی دارید، بپرسید."
+},
+{
+question: "چگونه ترتیب اعداد اول را بشناسیم؟",
+answer: "ترتیب اعداد اول از اعداد صحیح شروع می‌شود و تا بی‌نهایت ادامه دارد. به عنوان مثال، ۲، ۳، ۵، ۷، ۱۱، ..."
+},
+{
+question: "توان دوم یک عدد چگونه محاسبه می‌شود؟",
+answer: "توان دوم یک عدد برابر است با عدد خود ضربدر خود. برای مثال، ۳^۲ = ۳ × ۳ = ۹."
+},
+{
+question: "تعریف مجموعه تهی چیست؟",
+answer: "مجموعه تهی مجموعه‌ای است که هیچ عضوی در آن وجود ندارد. به عنوان مثال، مجموعه‌ای که هیچ عدد زوجی نداشته باشد."
+},
+{
+question: "تعریف میانگین وزنی چیست؟",
+answer: "میانگین وزنی با در نظر گرفتن وزن هر مقدار، برآورد میانگین محاسبه می‌شود. به عنوان مثال، اگر دو مقدار با وزن‌های ۲ و ۳ داشته باشیم، میانگین وزنی = (۲ × ۲ + ۳ × ۳) / (۲ + ۳)."
+},
+{
+question: "چگونه انتگرال معین را محاسبه کنیم؟",
+answer: "برای محاسبه انتگرال معین یک تابع از a تا b، باید از فرمول زیر استفاده کنیم: ∫[a, b] f(x)dx."
+},
+{
+question: "چگونه انتگرال نامعین را محاسبه کنیم؟",
+answer: "برای محاسبه انتگرال نامعین یک تابع، از فرمول ∫f(x)dx استفاده می‌شود."
+},
+{
+question: "تعریف اعداد فرد و زوج چیست؟",
+answer: "اعداد فرد اعدادی هستند که بر ۲ بخش‌پذیر نیستند و اعداد زوج اعدادی هستند که بر ۲ بخش‌پذیر هستند."
+},
+{
+question: "اسم تو چیه؟",
+answer: "من یک چت بات ساده هستم."
+},
+{
+question: "خداحافظ",
+answer: "خداحافظ! اگر سوالی دارید، بپرسید."
+},
+{
+question: "چگونه ترتیب اعداد اول را بشناسیم؟",
+answer: "ترتیب اعداد اول از اعداد صحیح شروع می‌شود و تا بی‌نهایت ادامه دارد. به عنوان مثال، ۲، ۳، ۵، ۷، ۱۱، ..."
+},
+{
+question: "توان دوم یک عدد چگونه محاسبه می‌شود؟",
+answer: "توان دوم یک عدد برابر است با عدد خود ضربدر خود. برای مثال، ۳^۲ = ۳ × ۳ = ۹."
+},
+{
+question: "تعریف مجموعه تهی چیست؟",
+answer: "مجموعه تهی مجموعه‌ای است که هیچ عضوی در آن وجود ندارد. به عنوان مثال، مجموعه‌ای که هیچ عدد زوجی نداشته باشد."
+},
+{
+question: "تعریف میانگین وزنی چیست؟",
+answer: "میانگین وزنی با در نظر گرفتن وزن هر مقدار، برآورد میانگین محاسبه می‌شود. به عنوان مثال، اگر دو مقدار با وزن‌های ۲ و ۳ داشته باشیم، میانگین وزنی = (۲ × ۲ + ۳ × ۳) / (۲ + ۳)."
+},
+{
+question: "چگونه انتگرال معین را محاسبه کنیم؟",
+answer: "برای محاسبه انتگرال معین یک تابع از a تا b، باید از فرمول زیر استفاده کنیم: ∫[a, b] f(x)dx."
+},
+{
+question: "چگونه انتگرال نامعین را محاسبه کنیم؟",
+answer: "برای محاسبه انتگرال نامعین یک تابع، از فرمول ∫f(x)dx استفاده می‌شود."
+},
+{
+question: "تعریف اعداد فرد و زوج چیست؟",
+answer: "اعداد فرد اعدادی هستند که بر ۲ بخش‌پذیر نیستند و اعداد زوج اعدادی هستند که بر ۲ بخش‌پذیر هستند."
+},
+
+        ];
+
+        function sendMessage() {
+            var userInput = document.getElementById('user-input').value;
+            var chatBox = document.getElementById('chat-box');
+            var userMessage = '<p><strong>شما:</strong> ' + userInput + '</p>';
+            var botResponse = getBotResponse(userInput);
+            var botAnswer = '<p><strong>بات:</strong> ' + botResponse + '</p>';
+            chatBox.innerHTML += userMessage + botAnswer;
+            document.getElementById('user-input').value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+      function getBotResponse(question) {
+    var response = 'متاسفم، من متوجه سوال شما نمی‌شوم.';
+    var maxSimilarity = 0;
+    var bestMatchIndex = -1;
+
+    for (var i = 0; i < knowledgeBase.length; i++) {
+        var similarity = calculateSimilarity(question, knowledgeBase[i].question);
+        if (similarity > maxSimilarity) {
+            maxSimilarity = similarity;
+            bestMatchIndex = i;
+        }
+    }
+
+    if (bestMatchIndex !== -1 && maxSimilarity > 0.5) {
+        response = knowledgeBase[bestMatchIndex].answer;
+    } else {
+        var userConfirmation = confirm("متاسفم، من برای این سوال پاسخی ندارم. آیا می‌خواهید پاسخ را به پایگاه دانش اضافه کنید؟");
+        if (userConfirmation) {
+            var newAnswer = prompt("لطفاً پاسخ را وارد کنید:");
+            if (newAnswer) {
+                knowledgeBase.push({ question: question, answer: newAnswer });
+                response = "پاسخ جدید با موفقیت به پایگاه دانش اضافه شد.";
+            }
+        }
+    }
+    
+    return response;
+}
+
+        // تابع برای محاسبه شباهت بین دو رشته متنی
+        function calculateSimilarity(str1, str2) {
+            var similarity = 0;
+            var longerLength = Math.max(str1.length, str2.length);
+            for (var i = 0; i < longerLength; i++) {
+                if (str1[i] && str2[i] && str1[i] === str2[i]) {
+                    similarity++;
+                }
+            }
+            return similarity / longerLength;
+        }
+
+        // تابع برای افزودن سوال و پاسخ جدید به پایگاه دانش
+        function addKnowledge() {
+            var newQuestion = document.getElementById('new-question').value;
+            var newAnswer = document.getElementById('new-answer').value;
+            if (newQuestion && newAnswer) {
+                knowledgeBase.push({ question: newQuestion, answer: newAnswer });
+                alert('سوال و پاسخ جدید با موفقیت به پایگاه دانش اضافه شد.');
+                document.getElementById('new-question').value = '';
+                document.getElementById('new-answer').value = '';
+            } else {
+                alert('لطفاً هر دو فیلد را پر کنید.');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معادله خطی و رسم خط با پشتیبانی از صفحه مختصات</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #e74c3c;
+        }
+
+        input[type="number"] {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+        }
+
+        canvas {
+            border: 2px solid #333;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>معادله خطی و رسم خط با پشتیبانی از صفحه مختصات</h1>
+    <div>
+        <label for="slope">شیب (m):</label>
+        <input type="number" value="2" id="slope">
+    </div>
+    <div>
+        <label for="intercept">عرض از مبدا (b):</label>
+        <input type="number" value="10" id="intercept">
+    </div>
+    <button onclick="calculateEquation()">محاسبه معادله خطی و رسم خط</button>
+    <div id="equation"></div>
+    <canvas id="lineCanvas" width="700" height="700"></canvas>
+
+    <script>
+        function calculateEquation() {
+            var slope = parseFloat(document.getElementById('slope').value);
+            var intercept = parseFloat(document.getElementById('intercept').value);
+            var equationText;
+            if (isNaN(slope) || isNaN(intercept)) {
+                equationText = "لطفا شیب و عرض از مبدا را وارد کنید.";
+            } else if (slope === 0) {
+                equationText = `معادله خط: y = ${intercept}`;
+            } else if (intercept === 0) {
+                equationText = `معادله خط: y = ${slope}x`;
+            } else {
+                equationText = `معادله خط: y = ${slope}x + ${intercept}`;
+            }
+            document.getElementById('equation').textContent = equationText;
+
+            var canvas = document.getElementById('lineCanvas');
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw x-axis
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.strokeStyle = "#000";
+            ctx.stroke();
+            // Draw x-axis labels
+            for (let i = 1; i <= canvas.width / 40; i++) {
+                ctx.fillText(i * 20, ((canvas.width / 2) + (i * 20)), canvas.width / 2 + 20);
+                ctx.fillText(-i * 20, ((canvas.width / 2) - (i * 20)) - 20, canvas.height / 2 + 20);
+            }
+            // Draw y-axis
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.strokeStyle = "#000";
+            ctx.stroke();
+            // Draw y-axis labels
+            for (let i = 1; i <= canvas.height / 40; i++) {
+                ctx.fillText(-i * 20, canvas.width / 2 - 20, ((canvas.height / 2) + (i * 20)));
+                ctx.fillText(i * 20, canvas.width / 2 - 20, ((canvas.height / 2) - (i * 20)));
+            }
+
+            // Draw line
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - (canvas.width / 2), (canvas.height / 2) + (canvas.width / 2) * slope - intercept);
+            ctx.lineTo(canvas.width / 2 + (canvas.width / 2), (canvas.height / 2) - (canvas.width / 2) * slope - intercept);
+            ctx.strokeStyle = "#f00";
+            ctx.stroke();
+        }
+    </script>
+</body>
+
+</html>

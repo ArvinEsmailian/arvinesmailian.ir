@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fa">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ماشین حساب و تبدیل واحد</title>
+        <link
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            rel="stylesheet">
+        <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        .result, .calc-result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .calc-container {
+            margin-top: 30px;
+        }
+        .btn {
+            margin-right: 5px;
+        }
+    </style>
+    </head>
+    <body>
+
+        <div class="container">
+            <h1 class="text-center mb-4">ماشین حساب و تبدیل واحد</h1>
+
+            <!-- تبدیل واحد -->
+            <div class="text-center">
+                <h2>تبدیل واحد</h2>
+                <div class="form-group">
+                    <select id="category" class="form-control mb-2">
+                        <option value="length">طول</option>
+                        <option value="area">مساحت</option>
+                        <option value="volume">حجم</option>
+                        <option value="speed">سرعت</option>
+                    </select>
+                    <input type="number" id="value" class="form-control mb-2"
+                        placeholder="مقدار" step="any">
+                    <select id="fromUnit" class="form-control mb-2"></select>
+                    <select id="toUnit" class="form-control mb-2"></select>
+                    <button class="btn btn-primary mt-2"
+                        onclick="convertUnits()">تبدیل</button>
+                </div>
+                <div id="result" class="result"></div>
+            </div>
+
+            <!-- ماشین حساب مهندسی -->
+            <div class="calc-container">
+                <h2>ماشین حساب</h2>
+                <input type="text" id="calcInput" class="form-control mb-2"
+                    placeholder="عبارت ریاضی خود را وارد کنید">
+                <button class="btn btn-primary"
+                    onclick="calculate()">محاسبه</button>
+                <div id="calcResult" class="calc-result"></div>
+            </div>
+        </div>
+
+        <script>
+    // واحدهای تبدیل
+    const units = {
+        length: {
+            'متر': 1,
+            'سانتیمتر': 0.01,
+            'میلیمتر': 0.001,
+            'اینچ': 0.0254,
+            'فوت': 0.3048,
+            'یارد': 0.9144,
+            'مایل': 1609.34
+        },
+        area: {
+            'متر مربع': 1,
+            'سانتیمتر مربع': 0.0001,
+            'میلیمتر مربع': 0.000001,
+            'اینچ مربع': 0.00064516,
+            'فوت مربع': 0.092903,
+            'یارد مربع': 0.836127,
+            'هکتار': 10000,
+            'آکر': 4046.86
+        },
+        volume: {
+            'متر مکعب': 1,
+            'لیتر': 0.001,
+            'سانتیمتر مکعب': 0.000001,
+            'میلیمتر مکعب': 0.000000001,
+            'اینچ مکعب': 0.0000163871,
+            'فوت مکعب': 0.0283168,
+            'گالن': 0.00378541
+        },
+        speed: {
+            'متر بر ثانیه': 1,
+            'کیلومتر بر ساعت': 0.277778,
+            'مایل بر ساعت': 0.44704,
+            'پا بر ثانیه': 0.3048,
+            'نات': 0.514444
+        }
+    };
+
+    // به‌روزرسانی واحدها
+    function updateUnits() {
+        const category = document.getElementById('category').value;
+        const fromUnit = document.getElementById('fromUnit');
+        const toUnit = document.getElementById('toUnit');
+        
+        fromUnit.innerHTML = '';
+        toUnit.innerHTML = '';
+        
+        for (const unit in units[category]) {
+            fromUnit.options[fromUnit.options.length] = new Option(unit, unit);
+            toUnit.options[toUnit.options.length] = new Option(unit, unit);
+        }
+    }
+
+    document.getElementById('category').addEventListener('change', updateUnits);
+    
+    function convertUnits() {
+        const category = document.getElementById('category').value;
+        const value = parseFloat(document.getElementById('value').value);
+        const fromUnit = document.getElementById('fromUnit').value;
+        const toUnit = document.getElementById('toUnit').value;
+        
+        if (isNaN(value)) {
+            document.getElementById('result').textContent = 'لطفاً مقدار معتبر وارد کنید.';
+            return;
+        }
+        
+        const baseValue = value * units[category][fromUnit];
+        const result = baseValue / units[category][toUnit];
+        
+        document.getElementById('result').textContent = `نتیجه: ${result.toFixed(4)} ${toUnit}`;
+    }
+
+    // ماشین حساب مهندسی
+    function calculate() {
+        const input = document.getElementById('calcInput').value;
+        const sanitizedInput = input.replace(/\^/g, '**'); // تبدیل ^ به **
+        let result;
+        
+        try {
+            result = eval(sanitizedInput);
+            if (isNaN(result) || !isFinite(result)) {
+                throw new Error("نتیجه نامعتبر");
+            }
+        } catch (e) {
+            result = 'خطا: ' + e.message;
+        }
+        
+        document.getElementById('calcResult').textContent = `نتیجه: ${result}`;
+    }
+
+    // بارگذاری اولیه واحدها
+    updateUnits();
+</script>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    </body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fa">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>محاسبه قدر مطلق</title>
+        <link
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            rel="stylesheet">
+        <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .history {
+            margin-top: 20px;
+            font-size: 1em;
+        }
+        .fade-in {
+            animation: fadeIn 1s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+    </head>
+    <body>
+
+        <div class="container text-center">
+            <h1 class="mb-4">محاسبه قدر مطلق </h1>
+
+            <div class="form-group">
+                <input type="text" id="expression" class="form-control mb-2"
+                    placeholder="عبارت ریاضی را وارد کنید (مثلاً |x + y|)">
+                <button class="btn btn-primary mt-2"
+                    onclick="evaluateExpression()">محاسبه</button>
+            </div>
+
+            <div id="result" class="result fade-in"></div>
+            <div id="history" class="history"></div>
+        </div>
+
+        <script>
+    function evaluateExpression() {
+        const expression = document.getElementById('expression').value.trim();
+        let result = '';
+
+        try {
+            // Replace |a + b| with Math.abs(a + b)
+            // Replace |a - b| with Math.abs(a - b)
+            // Handle different expressions
+            const sanitizedExpression = expression
+                .replace(/\s+/g, '')  // Remove all spaces
+                .replace(/\|([^|]+)\|/g, (match, innerExpr) => `Math.abs(${innerExpr})`)
+                .replace(/(\d+)\s*([\+\-\*\/])\s*(\d+)/g, (match, a, op, b) => `${a} ${op} ${b}`); // Handle operators
+
+            // Evaluate the sanitized expression
+            result = eval(sanitizedExpression);
+            result = `نتیجه: ${Math.abs(result)}`;
+        } catch (error) {
+            result = 'خطا در ارزیابی عبارت.';
+        }
+
+        document.getElementById('result').textContent = result.trim();
+        document.getElementById('result').classList.remove('text-danger');
+        document.getElementById('result').classList.add('text-success');
+        saveToHistory(result);
+    }
+
+    function saveToHistory(result) {
+        const history = document.getElementById('history');
+        const div = document.createElement('div');
+        div.className = 'fade-in';
+        div.textContent = result;
+        history.prepend(div);
+    }
+</script>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    </body>
+</html>

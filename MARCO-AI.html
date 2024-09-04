@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fa">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>چت بات</title>
+        <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #00ff00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+        .chat-box {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #333;
+            padding: 10px;
+            margin-bottom: 10px;
+            direction: rtl;
+            text-align: right;
+            background-color: #000;
+            color: #00ff00;
+            position: relative;
+        }
+        .chat-box p {
+            margin: 5px 0;
+        }
+        .typing-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: none;
+            color: #00ff00;
+        }
+        .input-box {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .input-box input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 0 5px 5px 0;
+            border: 1px solid #333;
+            border-left: none;
+            background-color: #000;
+            color: #00ff00;
+        }
+        .input-box button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #00ff00;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            cursor: pointer;
+        }
+        .input-box button:hover {
+            background-color: #555;
+        }
+        .add-knowledge {
+            border: 1px solid #333;
+            padding: 10px;
+            background-color: #000;
+            color: #00ff00;
+            margin-top: 20px;
+        }
+        .add-knowledge input[type="text"] {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #333;
+            background-color: #000;
+            color: #00ff00;
+        }
+        .sidebar {
+            max-width: 200px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            text-align: center;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 10px 0;
+        }
+        .typing-animation {
+            display: inline-block;
+            animation: typing 2s steps(30, end) infinite;
+        }
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="chat-box" id="chat-box">
+                <div class="typing-indicator" id="typing-indicator">بات در حال
+                    تایپ...</div>
+                <p><strong>بات:</strong> سلام! من یک چت بات هستم. چطور می‌توانم
+                    به شما کمک کنم؟</p>
+            </div>
+            <div class="input-box">
+                <input type="text" id="user-input"
+                    placeholder="پیام خود را وارد کنید...">
+                <button onclick="sendMessage()">ارسال</button>
+            </div>
+            <div class="add-knowledge">
+                <h2>افزودن سوال و پاسخ جدید</h2>
+                <div class="input-box">
+                    <input type="text" id="new-question"
+                        placeholder="سوال جدید">
+                    <input type="text" id="new-answer" placeholder="پاسخ جدید">
+                    <button onclick="addKnowledge()">افزودن</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h2>سوالات راهنما</h2>
+            <ul id="question-list">
+                <!-- سوالات راهنما اینجا اضافه می‌شوند -->
+            </ul>
+        </div>
+
+        <script>
+        var knowledgeBase = [
+            { question: 'سلام', answer: 'سلام! خوش آمدید!', keywords: ['سلام'] },
+            { question: 'چطوری؟', answer: 'ممنونم، خوبم. شما چطور؟', keywords: ['چطور', 'حالت', 'احوال'] },
+            { question: 'چه خبر؟', answer: 'هیچ خبر خاصی نیست. شما چه خبر؟', keywords: ['خبر', 'چه خبر'] },
+            { question: 'اسم تو چیه؟', answer: 'من یک چت بات ساده هستم.', keywords: ['اسم', 'نام'] },
+            { question: 'خداحافظ', answer: 'خداحافظ! اگر سوالی دارید، بپرسید.', keywords: ['خداحافظ'] },
+            { question: 'اعداد اول چیستند؟', answer: 'اعداد اول اعدادی هستند که فقط بر ۱ و خودشان بخش‌پذیرند. به عنوان مثال: ۲، ۳، ۵، ۷ و غیره.', keywords: ['اعداد اول', 'عدد اول'] },
+            { question: 'چگونه معادله درجه دوم را حل کنیم؟', answer: 'برای حل معادله درجه دوم ax^2 + bx + c = 0، می‌توان از فرمول x = [-b ± sqrt(b^2 - 4ac)] / 2a استفاده کرد.', keywords: ['معادله درجه دوم', 'حل معادله'] },
+            { question: 'فرمول مساحت مثلث چیست؟', answer: 'مساحت مثلث برابر است با ۱/۲ ضرب در قاعده ضرب در ارتفاع. یعنی A = 1/2 * base * height.', keywords: ['مساحت مثلث', 'فرمول مثلث'] },
+            { question: 'مجموع زوایای داخلی مثلث چقدر است؟', answer: 'مجموع زوایای داخلی هر مثلث برابر با ۱۸۰ درجه است.', keywords: ['مجموع زوایا', 'مثلث'] },
+            { question: 'چگونه محیط دایره را محاسبه کنیم؟', answer: 'محیط دایره با استفاده از فرمول P = 2πr محاسبه می‌شود که در آن r شعاع دایره است.', keywords: ['محیط دایره', 'دایره'] },
+            { question: 'فرمول مساحت دایره چیست؟', answer: 'مساحت دایره با استفاده از فرمول A = πr^2 محاسبه می‌شود که در آن r شعاع دایره است.', keywords: ['مساحت دایره', 'فرمول دایره'] },
+            { question: 'چگونه قدر مطلق یک عدد را پیدا کنیم؟', answer: 'قدر مطلق یک عدد برابر است با فاصله آن عدد از صفر بر روی محور اعداد. به عنوان مثال، قدر مطلق -۵ برابر است با ۵.', keywords: ['قدر مطلق', 'عدد'] },
+            { question: 'چگونه جذر یک عدد را محاسبه کنیم؟', answer: 'برای محاسبه جذر یک عدد، باید عددی را پیدا کنید که وقتی به توان ۲ برسد، برابر با آن عدد شود. به عنوان مثال، جذر ۹ برابر است با ۳، چون ۳ به توان ۲ برابر با ۹ است.', keywords: ['جذر', 'محاسبه'] },
+            { question: 'چه زمانی دو خط موازی هستند؟', answer: 'دو خط زمانی موازی هستند که شیب یکسانی داشته باشند و هیچگاه همدیگر را قطع نکنند.', keywords: ['خط موازی', 'شیب'] },
+            { question: 'چگونه مساحت مستطیل را محاسبه کنیم؟', answer: 'مساحت مستطیل برابر است با طول ضرب در عرض. یعنی A = length * width.', keywords: ['مساحت مستطیل', 'مستطیل'] },
+            { question: 'فرمول حجم مکعب چیست؟', answer: 'حجم مکعب برابر است با طول ضلع مکعب به توان ۳. یعنی V = side^3.', keywords: ['حجم مکعب', 'فرمول مکعب'] },
+            { question: 'چگونه فاصله بین دو نقطه را محاسبه کنیم؟', answer: 'فاصله بین دو نقطه با استفاده از فرمول دکارتی محاسبه می‌شود: d = sqrt((x2 - x1)^2 + (y2 - y1)^2).', keywords: ['فاصله', 'نقاط'] },{ question: '۳+۵ چقدر می‌شود؟', answer: '۳ + ۵ برابر است با ۸.', keywords: ['۳+۵', 'جمع'] },
+            { question: '۵-۲ چقدر می‌شود؟', answer: '۵ - ۲ برابر است با ۳.', keywords: ['۵-۲', 'تفریق'] },
+            { question: '۶*۴ چقدر می‌شود؟', answer: '۶ ضربدر ۴ برابر است با ۲۴.', keywords: ['۶*۴', 'ضرب'] },
+            { question: '۸÷۲ چقدر می‌شود؟', answer: '۸ تقسیم بر ۲ برابر است با ۴.', keywords: ['۸÷۲', 'تقسیم'] },
+            { question: 'چگونه باید معادله x+5=12 را حل کنم؟', answer: 'برای حل معادله x + 5 = 12، باید ۵ را از دو طرف معادله کم کنید تا x = 7.', keywords: ['معادله', 'حل معادله'] },
+            { question: 'مساحت مربع با ضلع ۴ چیست؟', answer: 'مساحت مربع برابر است با طول ضلع به توان ۲. برای ضلع ۴، مساحت برابر با ۴ * ۴ = ۱۶.', keywords: ['مساحت مربع', 'ضلع مربع'] },
+            { question: 'مساحت مستطیل با طول ۶ و عرض ۳ چیست؟', answer: 'مساحت مستطیل برابر است با طول ضرب در عرض. برای طول ۶ و عرض ۳، مساحت برابر با ۶ * ۳ = ۱۸.', keywords: ['مساحت مستطیل', 'طول مستطیل', 'عرض مستطیل'] },
+            { question: 'محیط دایره با شعاع ۵ چیست؟', answer: 'محیط دایره با استفاده از فرمول P = 2πr محاسبه می‌شود. برای شعاع ۵، محیط برابر با 2 * π * ۵ ≈ ۳۱.۴ است.', keywords: ['محیط دایره', 'شعاع دایره'] },
+            { question: 'چگونه باید جذر عدد ۹ را پیدا کنم؟', answer: 'جذر عدد ۹ برابر با عددی است که وقتی به توان ۲ برسد، برابر با ۹ شود. جذر ۹ برابر است با ۳.', keywords: ['جذر', 'عدد'] },
+            { question: 'چگونه باید جمع اعداد ۱۲، ۱۵ و ۲۰ را پیدا کنم؟', answer: 'برای جمع زدن اعداد ۱۲، ۱۵ و ۲۰، کافی است آنها را به ترتیب جمع کنید: ۱۲ + ۱۵ + ۲۰ = ۴۷.', keywords: ['جمع اعداد', 'اعداد'] },
+            { question: 'چگونه باید تفریق اعداد ۲۰ و ۷ را پیدا کنم؟', answer: 'برای تفریق عدد ۷ از ۲۰، کافی است ۷ را از ۲۰ کم کنید: ۲۰ - ۷ = ۱۳.', keywords: ['تفریق اعداد', 'اعداد'] },
+            { question: 'چگونه باید ضرب عدد ۸ در ۷ را پیدا کنم؟', answer: 'برای ضرب عدد ۸ در ۷، کافی است ۸ را در ۷ ضرب کنید: ۸ * ۷ = ۵۶.', keywords: ['ضرب اعداد', 'اعداد'] },
+            { question: 'چگونه باید تقسیم عدد ۵۶ بر ۸ را پیدا کنم؟', answer: 'برای تقسیم عدد ۵۶ بر ۸، کافی است ۵۶ را بر ۸ تقسیم کنید: ۵۶ ÷ ۸ = ۷.', keywords: ['تقسیم اعداد', 'اعداد'] },
+            { question: 'چگونه باید محیط مربع با ضلع ۴ را پیدا کنم؟', answer: 'محیط مربع برابر است با ۴ برابر طول ضلع. برای ضلع ۴، محیط برابر با ۴ * ۴ = ۱۶.', keywords: ['محیط مربع', 'ضلع مربع'] },
+            { question: 'چگونه باید مساحت مثلث با قاعده ۶ و ارتفاع ۴ را پیدا کنم؟', answer: 'مساحت مثلث برابر است با ۰.۵ * قاعده * ارتفاع. برای قاعده ۶ و ارتفاع ۴، مساحت برابر با ۰.۵ * ۶ * ۴ = ۱۲.', keywords: ['مساحت مثلث', 'قاعده مثلث', 'ارتفاع مثلث'] },
+            { question: 'چگونه باید حجم مکعب با ضلع ۵ را پیدا کنم؟', answer: 'حجم مکعب برابر است با طول ضلع به توان ۳. برای ضلع ۵، حجم برابر با ۵ * ۵ * ۵ = ۱۲۵.', keywords: ['حجم مکعب', 'ضلع مکعب'] },
+            { question: 'چگونه فاصله بین دو نقطه (۳، ۴) و (۷، ۱) را محاسبه کنیم؟', answer: 'فاصله بین دو نقطه با استفاده از فرمول دکارتی محاسبه می‌شود: d = sqrt((x2 - x1)^2 + (y2 - y1)^2). برای نقاط (۳، ۴) و (۷، ۱)، فاصله برابر با sqrt((۷ - ۳)^2 + (۱ - ۴)^2) = sqrt(۴۰) ≈ ۶.۳۲.', keywords: ['فاصله', 'نقاط'] },
+            { question: 'سلام', answer: 'سلام! خوش آمدید!', keywords: ['سلام'] },
+            { question: 'چطوری؟', answer: 'ممنونم، خوبم. شما چطور؟', keywords: ['چطور', 'حالت', 'احوال'] },
+            { question: 'چه خبر؟', answer: 'هیچ خبر خاصی نیست. شما چه خبر؟', keywords: ['خبر', 'چه خبر'] },
+            { question: 'اسم تو چیه؟', answer: 'من یک چت بات ساده هستم.', keywords: ['اسم', 'نام'] },
+            { question: 'خداحافظ', answer: 'خداحافظ! اگر سوالی دارید، بپرسید.', keywords: ['خداحافظ'] },
+            { question: 'اعداد اول چیستند؟', answer: 'اعداد اول اعدادی هستند که فقط بر ۱ و خودشان بخش‌پذیرند. به عنوان مثال: ۲، ۳،       ۵، ۷ و غیره.', keywords: ['اعداد اول', 'عدد اول', 'ریاضی'] },
+            { question: 'چگونه معادله درجه دوم را حل کنیم؟', answer: 'برای حل معادله درجه دوم ax^2 + bx + c = 0، می‌توان از فرمول x      = [-b ± sqrt(b^2 - 4ac)] / 2a استفاده کرد.', keywords: ['معادله درجه دوم', 'حل معادله', 'ریاضی'] },
+            { question: 'فرمول مساحت مثلث چیست؟', answer: 'مساحت مثلث برابر است با ۱/۲ ضرب در قاعده ضرب در ارتفاع. یعنی A = 1/2 *       base * height.', keywords: ['مساحت مثلث', 'فرمول مثلث', 'ریاضی'] },
+            { question: 'مجموع زوایای داخلی مثلث چقدر است؟', answer: 'مجموع زوایای داخلی هر مثلث برابر با ۱۸۰ درجه است.', keywords:         ['مجموع زوایا', 'مثلث', 'ریاضی'] },
+            { question: 'چگونه محیط دایره را محاسبه کنیم؟', answer: 'محیط دایره با استفاده از فرمول P = 2πr محاسبه می‌شود که در آن r         شعاع دایره است.', keywords: ['محیط دایره', 'دایره', 'ریاضی'] },
+            { question: 'فرمول مساحت دایره چیست؟', answer: 'مساحت دایره با استفاده از فرمول A = πr^2 محاسبه می‌شود که در آن r شعاع       دایره است.', keywords: ['مساحت دایره', 'فرمول دایره', 'ریاضی'] },
+            { question: 'چگونه قدر مطلق یک عدد را پیدا کنیم؟', answer: 'قدر مطلق یک عدد برابر است با فاصله آن عدد از صفر بر روی محور        اعداد. به عنوان مثال، قدر مطلق -۵ برابر است با ۵.', keywords: ['قدر مطلق', 'عدد', 'ریاضی'] },
+            { question: 'چگونه جذر یک عدد را محاسبه کنیم؟', answer: 'برای محاسبه جذر یک عدد، باید عددی را پیدا کنید که وقتی به توان         ۲ برسد، برابر با آن عدد شود. به عنوان مثال، جذر ۹ برابر است با ۳، چون ۳ به توان ۲ برابر با ۹ است.', keywords: ['جذر',       'محاسبه', 'ریاضی'] },
+            { question: 'چه زمانی دو خط موازی هستند؟', answer: 'دو خط زمانی موازی هستند که شیب یکسانی داشته باشند و هیچگاه همدیگر را        قطع نکنند.', keywords: ['خط موازی', 'شیب', 'هندسه'] },
+            { question: 'چگونه مساحت مستطیل را محاسبه کنیم؟', answer: 'مساحت مستطیل برابر است با طول ضرب در عرض. یعنی A = length *      width.', keywords: ['مساحت مستطیل', 'مستطیل', 'ریاضی'] },
+            { question: 'فرمول حجم مکعب چیست؟', answer: 'حجم مکعب برابر است با طول ضلع مکعب به توان ۳. یعنی V = side^3.', keywords:         ['حجم مکعب', 'فرمول مکعب', 'ریاضی'] },
+            { question: 'چگونه فاصله بین دو نقطه را محاسبه کنیم؟', answer: 'فاصله بین دو نقطه با استفاده از فرمول دکارتی محاسبه         می‌شود: d = sqrt((x2 - x1)^2 + (y2 - y1)^2).', keywords: ['فاصله', 'نقاط', 'ریاضی'] },
+            { question: '۳+۵ چقدر می‌شود؟', answer: '۳ + ۵ برابر است با ۸.', keywords: ['۳+۵', 'جمع', 'ریاضی'] },
+            { question: '۵-۲ چقدر می‌شود؟', answer: '۵ - ۲ برابر است با ۳.', keywords: ['۵-۲', 'تفریق', 'ریاضی'] },
+            { question: '۶*۴ چقدر می‌شود؟', answer: '۶ ضربدر ۴ برابر است با ۲۴.', keywords: ['۶*۴', 'ضرب', 'ریاضی'] },
+            { question: '۸÷۲ چقدر می‌شود؟', answer: '۸ تقسیم بر ۲ برابر است با ۴.', keywords: ['۸÷۲', 'تقسیم', 'ریاضی'] },
+            { question: 'چگونه باید معادله x+5=12 را حل کنم؟', answer: 'برای حل معادله x + 5 = 12، باید ۵ را از دو طرف معادله کم        کنید تا x = 7.', keywords: ['معادله', 'حل معادله', 'ریاضی'] },
+            { question: 'مساحت مربع با ضلع ۴ چیست؟', answer: 'مساحت مربع برابر است با طول ضلع به توان ۲. برای ضلع ۴، مساحت برابر با         ۴ * ۴ = ۱۶.', keywords: ['مساحت مربع', 'ضلع مربع', 'ریاضی'] },
+            { question: 'مساحت مستطیل با طول ۶ و عرض ۳ چیست؟', answer: 'مساحت مستطیل برابر است با طول ضرب در عرض. برای طول ۶ و عرض      ۳، مساحت برابر با ۶ * ۳ = ۱۸.', keywords: ['مساحت مستطیل', 'طول مستطیل', 'عرض مستطیل', 'ریاضی'] },
+            { question: 'محیط دایره با شعاع ۵ چیست؟', answer: 'محیط دایره با استفاده از فرمول P = 2πr محاسبه می‌شود. برای شعاع ۵،        محیط برابر با 2 * π * ۵ ≈ ۳۱.۴ است.', keywords: ['محیط دایره', 'شعاع دایره', 'ریاضی'] },
+            { question: 'چگونه باید جذر عدد ۹ را پیدا کنم؟', answer: 'جذر عدد ۹ برابر با عددی است که وقتی به توان ۲ برسد، برابر با ۹        شود. جذر ۹ برابر است با ۳.', keywords: ['جذر', 'عدد', 'ریاضی'] },
+            { question: 'چگونه باید جمع اعداد ۱۲، ۱۵ و ۲۰ را پیدا کنم؟', answer: 'برای جمع زدن اعداد ۱۲، ۱۵ و ۲۰، کافی است آنها را      به ترتیب جمع کنید: ۱۲ + ۱۵ + ۲۰ = ۴۷.', keywords: ['جمع اعداد', 'اعداد', 'ریاضی'] },
+            { question: 'چگونه باید تفریق اعداد ۲۰ و ۷ را پیدا کنم؟', answer: 'برای تفریق عدد ۷ از ۲۰، کافی است ۷ را از ۲۰ کم کنید:         ۲۰ - ۷ = ۱۳.', keywords: ['تفریق اعداد', 'اعداد', 'ریاضی'] },
+            { question: 'چگونه باید ضرب عدد ۸ در ۷ را پیدا کنم؟', answer: 'برای ضرب عدد ۸ در ۷، کافی است ۸ را در ۷ ضرب کنید: ۸ * ۷ =        ۵۶.', keywords: ['ضرب اعداد', 'اعداد', 'ریاضی'] },
+            { question: 'چگونه باید تقسیم عدد ۵۶ بر ۸ را پیدا کنم؟', answer: 'برای تقسیم عدد ۵۶ بر ۸، کافی است ۵۶ را بر ۸ تقسیم         کنید: ۵۶ ÷ ۸ = ۷.', keywords: ['تقسیم اعداد', 'اعداد', 'ریاضی'] },
+            { question: 'چگونه باید محیط مربع با ضلع ۴ را پیدا کنم؟', answer: 'محیط مربع برابر است با ۴ برابر طول ضلع. برای ضلع ۴،      محیط برابر با ۴ * ۴ = ۱۶.', keywords: ['محیط مربع', 'ضلع مربع', 'ریاضی'] },
+]
+
+            
+        ;
+
+        function sendMessage() {
+            var userInput = document.getElementById('user-input').value;
+            var chatBox = document.getElementById('chat-box');
+            var typingIndicator = document.getElementById('typing-indicator');
+            
+            chatBox.innerHTML += '<p><strong>شما:</strong> ' + userInput + '</p>';
+            typingIndicator.style.display = 'block';
+            setTimeout(function() {
+                var response = getAnswer(userInput);
+                chatBox.innerHTML += '<p><strong>بات:</strong> ' + response + '</p>';
+                typingIndicator.style.display = 'none';
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1000); // Delay to simulate typing effect
+            document.getElementById('user-input').value = '';
+        }
+
+        function getAnswer(question) {
+            var found = knowledgeBase.find(function (item) {
+                return item.keywords.some(function (keyword) {
+                    return question.includes(keyword);
+                });
+            });
+            if (found) {
+                return found.answer;
+            } else {
+                return 'متاسفم، پاسخ سوال شما را نمی‌دانم. لطفاً سوال دیگری بپرسید.';
+            }
+        }
+
+        function addKnowledge() {
+            var newQuestion = document.getElementById('new-question').value;
+            var newAnswer = document.getElementById('new-answer').value;
+            if (newQuestion && newAnswer) {
+                knowledgeBase.push({ question: newQuestion, answer: newAnswer, keywords: extractKeywords(newQuestion) });
+                document.getElementById('new-question').value = '';
+                document.getElementById('new-answer').value = '';
+                updateQuestionList();
+                alert('سوال و پاسخ جدید با موفقیت اضافه شد!');
+            } else {
+                alert('لطفاً هر دو قسمت سوال و پاسخ را پر کنید.');
+            }
+        }
+
+        function extractKeywords(question) {
+            return question.split(' ').map(word => word.trim().toLowerCase());
+        }
+
+        function updateQuestionList() {
+            var questionList = document.getElementById('question-list');
+            questionList.innerHTML = '';
+            knowledgeBase.forEach(function (item) {
+                var li = document.createElement('li');
+                li.textContent = item.question;
+                questionList.appendChild(li);
+            });
+        }
+        
+
+        // بروزرسانی لیست سوالات راهنما
+        updateQuestionList();
+    </script>
+    </body>
+</html>
